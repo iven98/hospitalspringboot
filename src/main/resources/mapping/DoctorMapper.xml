@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zakary.hospitalspringboot.mapper.DoctorMapper">
+
+    <select id="selectDoctorByCode" parameterType="com.zakary.hospitalspringboot.dao.DoctorDao" resultType="com.zakary.hospitalspringboot.dao.DoctorDao" >
+    select doctor_id,doctor_name,doctor_department,doctor_position,doctor_gender,type,doctor_tel,password,cert_code,active,create_date
+    from doctor
+    where cert_code = #{cert_code}
+  </select>
+    <select id="selectDoctorById" parameterType="com.zakary.hospitalspringboot.dao.DoctorDao" resultType="com.zakary.hospitalspringboot.dao.DoctorDao" >
+    select doctor_id,doctor_name,doctor_department,doctor_position,doctor_gender,type,doctor_tel,password,cert_code,active,create_date
+    from doctor
+    where doctor_id = #{doctor_id}
+  </select>
+    <delete id="deleteDoctorById" parameterType="com.zakary.hospitalspringboot.dao.DoctorDao">
+    delete from doctor
+    where doctor_id = #{doctor_id}
+  </delete>
+    <insert id="insertDoctor" parameterType="com.zakary.hospitalspringboot.dao.DoctorDao">
+    insert into doctor (doctor_name, doctor_department,
+      doctor_position, doctor_gender,
+      doctor_tel, password,cert_code,type,active,create_date)
+    values (#{doctor_name}, #{doctor_department},
+      #{doctor_position}, #{doctor_gender},
+      #{doctor_tel}, #{password},#{cert_code},'1','N',NOW())
+  </insert>
+
+    <update id="updateDoctorById" parameterType="com.zakary.hospitalspringboot.dao.DoctorDao">
+        update doctor
+        set
+        doctor_name = #{doctor_name},
+        doctor_department = #{doctor_department},
+        doctor_position = #{doctor_position},
+        doctor_gender = #{doctor_gender},
+        doctor_tel = #{doctor_tel},
+        cert_code = #{cert_code},
+        <if test="active != null and active!=''">
+            active = #{active}
+        </if>
+        where doctor_id = #{doctor_id}
+    </update>
+
+    <select id="selectAllDoctors" resultType="com.zakary.hospitalspringboot.dao.DoctorDao" parameterType="com.zakary.hospitalspringboot.dao.PageDao">
+        select doctor_id,doctor_name,doctor_department,doctor_position,doctor_gender,type,doctor_tel,cert_code,active,create_date
+        from doctor where active=#{active}
+        <if test="cert_code !=null and cert_code != 0">
+            and cert_code=#{cert_code}
+        </if>
+        limit #{page},#{limit}
+    </select>
+    <select id="getAllDoctorsCounts" resultType="java.lang.Integer" parameterType="java.lang.String">
+    select count(doctor_id) from doctor where active=#{active};
+  </select>
+</mapper>

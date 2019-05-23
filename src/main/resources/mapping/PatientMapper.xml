@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zakary.hospitalspringboot.mapper.PatientMapper" >
+    <resultMap id="BaseResultMap" type="com.zakary.hospitalspringboot.dao.PatientDao" >
+        <id column="patient_id" property="patient_id" jdbcType="INTEGER" />
+        <result column="patient_name" property="patient_name" jdbcType="VARCHAR" />
+        <result column="patient_gender" property="patient_gender" jdbcType="VARCHAR" />
+        <result column="patient_age" property="patient_age" jdbcType="INTEGER" />
+        <result column="patient_tel" property="patient_tel" jdbcType="INTEGER" />
+        <result column="doctor_cert_code" property="doctor_cert_code" jdbcType="VARCHAR" />
+        <result column="type" property="type" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+    patient_id, patien_tname, patient_gender, patient_age, patient_tel, type
+  </sql>
+    <select id="selectByPrimaryKey"  parameterType="java.lang.Integer" resultType="com.zakary.hospitalspringboot.dao.PatientDao">
+        select
+        <include refid="Base_Column_List" />
+        from patient
+        where patient_id = #{patient_id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from patient
+    where patient_id = #{patient_id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.zakary.hospitalspringboot.dao.PatientDao" >
+    insert into patient (patient_id, patient_name, patient_gender,
+      patient_age, patient_tel, type
+      )
+    values (#{patient_id,jdbcType=INTEGER}, #{patient_name,jdbcType=VARCHAR}, #{patient_gender,jdbcType=CHAR},
+      #{patient_age,jdbcType=INTEGER}, #{patient_tel,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR}
+      )
+  </insert>
+
+    <select id="selectPatientByCert" parameterType="java.lang.String" resultType="com.zakary.hospitalspringboot.dao.PatientDao">
+    select patient_id, cert_code, patient_name, patient_gender, patient_age, patient_tel, type
+    from patient
+    where cert_code=#{cert_code}
+  </select>
+
+    <insert id="insertSelective" parameterType="com.zakary.hospitalspringboot.dao.PatientDao" >
+        insert into patient
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="patient_id != null" >
+                patient_id,
+            </if>
+            <if test="patient_name != null" >
+                patient_name,
+            </if>
+            <if test="patient_gender != null" >
+                patient_gender,
+            </if>
+            <if test="patient_age != null" >
+                patient_age,
+            </if>
+            <if test="patient_tel != null" >
+                patient_tel,
+            </if>
+            <if test="type != null" >
+                type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="patient_id != null" >
+                #{patient_id,jdbcType=INTEGER},
+            </if>
+            <if test="patient_name != null" >
+                #{patient_name,jdbcType=VARCHAR},
+            </if>
+            <if test="patient_gender != null" >
+                #{patient_gender,jdbcType=CHAR},
+            </if>
+            <if test="patient_age != null" >
+                #{patient_age,jdbcType=INTEGER},
+            </if>
+            <if test="patient_tel != null" >
+                #{patient_tel,jdbcType=INTEGER},
+            </if>
+            <if test="type != null" >
+                #{type,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.zakary.hospitalspringboot.dao.PatientDao" >
+        update patient
+        <set >
+            <if test="patient_name != null" >
+                patient_name = #{patient_name,jdbcType=VARCHAR},
+            </if>
+            <if test="patient_gender != null" >
+                patient_gender = #{patient_gender,jdbcType=CHAR},
+            </if>
+            <if test="patient_age != null" >
+                patient_age = #{patient_age,jdbcType=INTEGER},
+            </if>
+            <if test="patient_tel != null" >
+                patient_tel = #{patient_tel,jdbcType=INTEGER},
+            </if>
+            <if test="type != null" >
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where patient_id = #{patient_id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.zakary.hospitalspringboot.dao.PatientDao" >
+    update patient
+    set patient_name = #{patient_name,jdbcType=VARCHAR},
+      patient_gender = #{patient_gender,jdbcType=CHAR},
+      patient_age = #{patient_age,jdbcType=INTEGER},
+      patient_tel = #{patient_tel,jdbcType=INTEGER},
+      type = #{type,jdbcType=VARCHAR}
+    where patient_id = #{patient_id,jdbcType=INTEGER}
+  </update>
+
+    <select id="selectAllPatientsByDoctorCert" resultType="com.zakary.hospitalspringboot.dao.PatientDao" parameterType="com.zakary.hospitalspringboot.dao.PageDao">
+        select cert_code,patient_name,patient_gender,patient_age,patient_tel,has_sickbed,create_date,doctor_cert_code
+        from patient
+        where doctor_cert_code=#{doctor_cert_code}
+        <if test="patient_cert_code !=null and patient_cert_code !=''">
+            and patient.cert_code=#{patient_cert_code}
+        </if>
+        limit #{page},#{limit}
+    </select>
+    <select id="getAllPatientsCounts" resultType="java.lang.Integer" parameterType="com.zakary.hospitalspringboot.dao.PageDao">
+        select count(cert_code) from patient where doctor_cert_code=#{doctor_cert_code}
+        <if test="patient_cert_code !=null and patient_cert_code !=''">
+            and patient.cert_code=#{patient_cert_code}
+        </if>
+    </select>
+    <select id="getCountByCert" resultType="java.lang.Integer" parameterType="java.lang.String">
+    select count(*)
+    from patient
+    where cert_code=#{cert_code,jdbcType=VARCHAR}
+  </select>
+
+    <select id="getCountByCertInTreatment" resultType="java.lang.Integer" parameterType="java.lang.String">
+    select count(*)
+    from treatment
+    where patient_cert_code=#{patient_cert_code,jdbcType=VARCHAR}
+  </select>
+
+    <insert id="insertPatientTreatmnet" parameterType="com.zakary.hospitalspringboot.dao.TreatmentDao">
+    insert into treatment(doctor_cert_code, patient_cert_code, treatment_name, treatment_time, treatment_fee, create_date, complete)
+    values (#{doctor_cert_code},#{patient_cert_code},#{treatment_name},#{treatment_time},#{treatment_fee},NOW(),'N')
+  </insert>
+
+    <select id="selectTreatmentByCert" parameterType="java.lang.String" resultType="com.zakary.hospitalspringboot.dao.TreatmentDao">
+    select doctor_cert_code, patient_cert_code, treatment_name, treatment_time, treatment_fee
+    from treatment
+    where patient_cert_code=#{patient_cert_code}
+  </select>
+
+    <select id="isEmptyBySickbed" parameterType="java.lang.Integer" resultType="java.lang.String">
+    select sickbed_state
+    from sickbed
+    where sickbed_id=#{sickbed_id,jdbcType=INTEGER} and sickroom_id=#{sickroom_id,jdbcType=INTEGER}
+  </select>
+
+    <select id="selectPatientInSickbedByCert" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select count(*)
+    from sickbed
+    where patient_cert_code=#{patient_cert_code,jdbcType=VARCHAR}
+  </select>
+
+    <update id="updateSickbed" parameterType="com.zakary.hospitalspringboot.dao.SickbedDao">
+    update sickbed
+    set sickbed_state=#{sickbed_state,jdbcType=VARCHAR},
+        patient_cert_code=#{patient_cert_code,jdbcType=VARCHAR}
+    where sickroom_id=#{sickroom_id,jdbcType=INTEGER} and sickbed_id=#{sickbed_id,jdbcType=INTEGER}
+  </update>
+
+    <select id="selectPatientsSickbedInfo" parameterType="com.zakary.hospitalspringboot.dao.PageDao" resultType="com.zakary.hospitalspringboot.dao.utils.PatientSickbed">
+        select patient.patient_name,sickbed.patient_cert_code,doctor.doctor_name,sickbed.sickroom_id,sickbed.sickbed_id,sickroom.sickroom_fee
+        from sickroom,sickbed,patient,doctor,treatment
+        where sickbed.patient_cert_code=patient.cert_code and patient.cert_code=treatment.patient_cert_code and sickbed.sickroom_id=sickroom.sickroom_id and treatment.doctor_cert_code=doctor.cert_code
+        <if test="patient_cert_code!=null and patient_cert_code!=0">
+            and patient.cert_code=#{patient_cert_code}
+        </if>
+    </select>
+
+    <select id="selectSickbedbyCert" parameterType="java.lang.String" resultType="com.zakary.hospitalspringboot.dao.SickbedDao">
+    select sickroom_id, sickbed_id, patient_cert_code, sickbed_state
+    from sickbed
+    where patient_cert_code=#{patient_cert_code}
+  </select>
+
+    <select id="selectCountInSickroom" resultType="java.lang.Integer">
+     select count(*)
+      from sickroom
+    </select>
+
+    <insert id="insertPrescriptionDao" parameterType="com.zakary.hospitalspringboot.dao.PrescriptionDao">
+        insert into prescription(doctor_cert_code, patient_cert_code)
+        values (#{doctor_cert_code,jdbcType=VARCHAR},#{patient_cert_code,jdbcType=VARCHAR})
+    </insert>
+
+    <select id="selectPrescriptionId" parameterType="com.zakary.hospitalspringboot.dao.PrescriptionDao" resultType="java.lang.Integer">
+    select prescription_id
+    from prescription
+    where patient_cert_code=#{patient_cert_code} and doctor_cert_code=#{doctor_cert_code} limit 1
+  </select>
+
+    <insert id="insertPrescriptionAttributeDao" parameterType="com.zakary.hospitalspringboot.dao.PrescriptionAttributeDao">
+    insert into prescription_attribute(prescription_id, drug_name, drug_num, patient_cert_code, doctor_cert_code, drug_id)
+    values (#{prescription_id},#{drug_name},#{drug_num},#{patient_cert_code},#{doctor_cert_code},#{drug_id})
+  </insert>
+
+    <select id="selectPrescriptionIdByCert" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select prescription_id
+        from prescription
+        where doctor_cert_code=#{doctor_cert_code} and patient_cert_code=#{patient_cert_code}
+    </select>
+
+    <select id="selectAllPrescriptionAttribute" parameterType="com.zakary.hospitalspringboot.dao.PrescriptionAttributeDao" resultType="java.util.HashMap">
+        select prescription.patient_cert_code,patient.patient_name,treatment.treatment_name,prescription_attribute.prescription_id,drug.drug_id,prescription_attribute.drug_name,prescription_attribute.drug_num,drug.drug_price
+        from prescription_attribute,prescription,patient,treatment,drug
+        where prescription.prescription_id=prescription_attribute.prescription_id and prescription.patient_cert_code=patient.cert_code and patient.cert_code=treatment.patient_cert_code and drug.drug_name=prescription_attribute.drug_name and prescription_attribute.prescription_id=#{prescription_id} and prescription_attribute.patient_cert_code=#{patient_cert_code} and prescription_attribute.doctor_cert_code=#{doctor_cert_code}
+    </select>
+
+    <select id="selectSickrommFee" parameterType="java.lang.Integer" resultType="java.lang.Double">
+    select sickroom_fee
+    from sickroom
+    where sickroom_id=#{sickroom_id}
+  </select>
+
+    <insert id="insertHlist" parameterType="com.zakary.hospitalspringboot.dao.HlistDao">
+    insert into hlist(doctor_name, doctor_cert_code, patient_name, patient_cert_code, sickroom_id, sickbed_id, treatment_time, treatment_name, prescription_id, drug_all_price, sickroom_fee, treatment_fee, hlist_fee)
+    values (#{doctor_name},#{doctor_cert_code},#{patient_name},#{patient_cert_code},#{sickroom_id},#{sickbed_id},#{treatment_time},#{treatment_name},#{prescription_id},#{drug_all_price},#{sickroom_fee},#{treatment_fee},#{hlist_fee})
+  </insert>
+
+    <select id="hlistCountByCert" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select count(*)
+    from hlist
+    where patient_cert_code=#{patient_cert_code}
+  </select>
+
+    <select id="selectHlistInfoByCert" parameterType="java.lang.String" resultType="com.zakary.hospitalspringboot.dao.HlistDao">
+    select hlist_id, doctor_name, doctor_cert_code, patient_name, patient_cert_code, sickroom_id, sickbed_id, treatment_time, treatment_name, prescription_id, drug_all_price, sickroom_fee, treatment_fee, hlist_fee
+    from hlist
+    where patient_cert_code=#{patient_cert_code}
+  </select>
+
+    <select id="selectAllPatientSickbed" parameterType="com.zakary.hospitalspringboot.dao.PageDao" resultType="java.util.HashMap">
+        select  patient.cert_code, patient.patient_name, patient.patient_gender, patient.patient_age,  patient.has_sickbed,  sickbed.sickroom_id, sickbed.sickbed_id, patient.has_sickbed
+        from patient left join sickbed
+        on patient.cert_code=sickbed.patient_cert_code
+        where  patient.doctor_cert_code=#{doctor_cert_code}
+        <if test="patient_cert_code!=null and patient_cert_code!=0">
+            and patient.cert_code=#{patient_cert_code}
+        </if>
+        limit #{page},#{limit}
+    </select>
+
+    <select id="selectAllPatientNoSickbed" parameterType="com.zakary.hospitalspringboot.dao.PageDao" resultType="java.util.HashMap">
+        select patient_id, cert_code, patient_name, patient_gender, patient_age, patient_tel, type, has_sickbed, create_date
+        FROM patient
+        where cert_code not in(SELECT sickbed.patient_cert_code
+        from sickbed
+        where sickbed.patient_cert_code IS NOT NULL)
+        <if test="patient_cert_code!=null and patient_cert_code!=0">
+            and patient.cert_code=#{patient_cert_code}
+        </if>
+    </select>
+
+    <update id="updatePatientHasSickbed" parameterType="com.zakary.hospitalspringboot.dao.SickbedDao">
+    update patient
+    set has_sickbed='Y'
+    where cert_code=#{patient_cert_code}
+  </update>
+    <insert id="insertHlistInfo" parameterType="com.zakary.hospitalspringboot.dao.PatientDao">
+    insert into hlist (
+    doctor_name,doctor_cert_code,patient_name,patient_cert_code,
+    sickroom_id,sickbed_id,treatment_time,treatment_name,drug_all_price,sickroom_fee,treatment_fee,hlist_fee,create_date)
+    select d.doctor_name,d.cert_code doctor_cert_code,
+    a.patient_name,a.cert_code patient_cert_code,
+    b.sickroom_id,b.sickbed_id,c.treatment_time,c.treatment_name,e.durg_all_price,f.sickroom_fee,c.treatment_fee,
+    (ifnull(c.treatment_fee,0)+ifnull(e.durg_all_price,0)+ifnull(f.sickroom_fee,0)) hlist_fee,NOW()
+    from patient a,sickbed b,treatment c,doctor d,
+    (select sum(a.drug_price*b.drug_num) durg_all_price from drug a,prescription_attribute b where a.drug_id=b.drug_id
+    and b.prescription_id in (select c.prescription_id from prescription c where c.patient_cert_code=#{cert_code})) e,
+    sickroom f where a.cert_code = b.patient_cert_code
+    and a.cert_code = c.patient_cert_code and c.doctor_cert_code = d.cert_code
+    and f.sickroom_id = b.sickroom_id and a.cert_code=#{cert_code}
+  </insert>
+
+    <insert id="insertPatient" parameterType="com.zakary.hospitalspringboot.dao.PatientDao">
+    insert into patient (cert_code,patient_name,patient_gender,patient_age,patient_tel,has_sickbed,create_date,doctor_cert_code,type)
+    values (#{cert_code},#{patient_name},#{patient_gender},#{patient_age},#{patient_tel},'N',NOW(),#{doctor_cert_code},#{type})
+  </insert>
+
+    <select id="selectAllTreatmentByPatientCertCode" parameterType="com.zakary.hospitalspringboot.dao.TreatmentDao" resultType="java.util.HashMap">
+        select b.patient_name,a.doctor_cert_code, a.patient_cert_code, a.treatment_name, a.treatment_time, a.treatment_fee, a.create_date,a.complete
+        from treatment a,patient b
+        where a.patient_cert_code = b.cert_code and a.patient_cert_code=#{patient_cert_code}
+    </select>
+
+    <update id="updatePatientInfoBycert" parameterType="com.zakary.hospitalspringboot.dao.PatientDao" >
+    update patient
+      set cert_code=#{cert_code},
+          patient_name=#{patient_name},
+          patient_gender=#{patient_gender},
+          patient_age=#{patient_age},
+          patient_tel=#{patient_tel}
+  where cert_code=#{old_cert_code}
+  </update>
+
+    <select id="getCountInPatientBycert" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select count(*)
+    from patient
+    where cert_code=#{cert_code}
+  </select>
+
+    <select id="getCompletedTreatment" parameterType="java.lang.String" resultType="com.zakary.hospitalspringboot.dao.TreatmentDao">
+    select doctor_cert_code, patient_cert_code, treatment_name, treatment_time, treatment_fee, create_date, complete
+    from treatment
+    where patient_cert_code=#{patient_cert_code} and complete='Y'
+  </select>
+
+    <select id="getNotCompletedTreatment" parameterType="java.lang.String" resultType="com.zakary.hospitalspringboot.dao.TreatmentDao">
+    select doctor_cert_code, patient_cert_code, treatment_name, treatment_time, treatment_fee, create_date, complete
+    from treatment
+    where patient_cert_code=#{patient_cert_code} and complete='N'
+  </select>
+
+    <select id="getPatientNameByCert" parameterType="java.lang.String" resultType="java.lang.String">
+    select patient_name
+    from patient
+    where cert_code=#{patient-cert_code}
+  </select>
+    <select id="getAllTreatmentInfo" parameterType="com.zakary.hospitalspringboot.dao.PageDao" resultType="java.util.HashMap">
+        select b.patient_name,b.cert_code,
+        count((a.complete='N' and patient_cert_code=a.patient_cert_code) or null) undone,
+        count((a.complete='Y' and patient_cert_code=a.patient_cert_code) or null) done,
+        count(a.patient_cert_code=a.patient_cert_code) all_count
+        from  treatment a,patient b
+        where a.patient_cert_code in (select cert_code from patient where doctor_cert_code=#{doctor_cert_code})
+        and a.patient_cert_code=b.cert_code
+        <if test="patient_cert_code !=null and patient_cert_code!=''">
+            and a.patient_cert_code=#{patient_cert_code}
+        </if>
+        GROUP BY b.cert_code
+        UNION
+        select patient_name,cert_code,0,0,0 from patient where cert_code not in (select DISTINCT(patient_cert_code) from treatment) and doctor_cert_code=#{doctor_cert_code}
+        <if test="patient_cert_code !=null and patient_cert_code!=''">
+            and cert_code=#{patient_cert_code}
+        </if>
+        limit #{page},#{limit}
+    </select>
+
+    <select id="selectAllPrescriptionByCert" parameterType="com.zakary.hospitalspringboot.dao.PrescriptionDao" resultType="com.zakary.hospitalspringboot.dao.PrescriptionDao">
+    select prescription_id, doctor_cert_code, patient_cert_code, create_date
+    from prescription
+    where patient_cert_code=#{patient_cert_code}
+  </select>
+
+    <select id="selectAllPrescriptionAttributeByPrescriptionId" parameterType="com.zakary.hospitalspringboot.dao.PrescriptionAttributeDao" resultType="com.zakary.hospitalspringboot.dao.PrescriptionAttributeDao">
+    select prescription_id, drug_name, drug_num, patient_cert_code, doctor_cert_code, drug_id
+    from prescription_attribute
+    where prescription_id=#{prescription_id}
+  </select>
+
+    <select id="getDrugId" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select drug_id
+    from drug
+    where drug_name=#{drug_name}
+  </select>
+</mapper>

@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://47.101.149.36:3306/hospital?useUnicode=true&characterEncoding=utf8"
+    username: "root"
+    password: "123698745"
+
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
